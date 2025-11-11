@@ -4,6 +4,7 @@ import { StyleSheet, Dimensions, Alert, View, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DividerLine from '../Background/LineDivider';
 import { baseImageURL } from '../Screens/Api';
+import baseURL  from '../Screens/Api';
 
 export default function CouncilCard({ route, council, navigation, member, displayPicture}) {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +39,7 @@ export default function CouncilCard({ route, council, navigation, member, displa
       if (response.ok) {
         switch (role) {
           case 'Admin':
-            navigation.navigate('AdminScreen', {role, Council : council.id});
+            navigation.replace('AdminScreen', {role, Council : council.id});
             break;
           case 'Member':
             navigation.navigate('ResidentScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});

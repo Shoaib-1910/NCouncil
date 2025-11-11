@@ -190,6 +190,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import WavyBackground2 from '../../Background/WavyBackground2';
 import { launchImageLibrary } from 'react-native-image-picker';
+import baseURL from '../Api';
 
 export default function CreateCouncil({ route, navigation }) {
   const { width } = useWindowDimensions(); // Screen width
@@ -241,7 +242,7 @@ export default function CreateCouncil({ route, navigation }) {
     formData.append('Name', name);
     formData.append('Description', desc);
     formData.append('memberId', Id); // Append memberId as part of the form data
-  
+   console.log('foram data is',formData)
     // Append the image if selected
     if (selectedImage) {
       const uriParts = selectedImage.split('.');
@@ -270,11 +271,12 @@ export default function CreateCouncil({ route, navigation }) {
       });
   
       const json = await response.json();
+      console.log('return json is ',json)
   
       if (response.ok) {
         console.log(JSON.stringify(json));
         Alert.alert(`${name} added successfully!`, `Now you will be redirected to Home.`, [
-          { text: 'OK', onPress: () => navigation.navigate('HomeScreen', { memberID: Id }) },
+          { text: 'OK', onPress: () => navigation.replace('HomeScreen', { memberID: Id }) },
         ]);
       } else {
         Alert.alert('Failed to create council. Status code: ' + response.status);

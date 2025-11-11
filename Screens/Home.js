@@ -41,13 +41,13 @@
 //       Alert.alert('Error', 'Failed to log out. Please try again.');
 //     }
 //   };
-  
+
 //   const renderCouncilCard = ({ item }) => (
 //     <View style={styles.cardContainer}>
 //       <CouncilCard council={item} navigation={navigation} />
 //     </View>
 //   );
-  
+
 //   return (
 //     <SafeAreaView style={styles.container}>
 //       <WavyBackground />
@@ -90,11 +90,11 @@
 //     paddingTop: 160, // Adjust based on wavy background height
 //   },
 //   text:{
-//     fontFamily : 'KronaOne-Regular', 
-//     fontSize : 30, 
-//     textAlign : 'left', 
-//     left: 5, 
-//     top: 30, 
+//     fontFamily : 'KronaOne-Regular',
+//     fontSize : 30,
+//     textAlign : 'left',
+//     left: 5,
+//     top: 30,
 //     color: 'black'
 //   },
 //   container: {
@@ -103,7 +103,7 @@
 //   },
 //   footerContainer: {
 //     position: 'absolute',
-//     bottom: 0, 
+//     bottom: 0,
 //     width: useWindowDimensions,
 //     alignItems: 'center',
 //     zIndex : -1
@@ -120,7 +120,7 @@
 //     borderRadius : 50,
 //   },
 //   button : {
-  
+
 //     margin: 'auto',
 //     left: 20,
 //   }
@@ -134,29 +134,28 @@
 
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, Alert, Image, SafeAreaView, StyleSheet, Text, useWindowDimensions, View, Button, Modal, TouchableOpacity, BackHandler, TextInput } from 'react-native';
-import WavyBackground from '../Background/WavyBackground';
+import { FlatList, Alert, Image, SafeAreaView, StyleSheet, Text, useWindowDimensions, View, Modal, TouchableOpacity, BackHandler, TextInput } from 'react-native';
+import WavyBackground2 from '../Background/WavyBackground2';
 import { FAB, Portal, Provider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CouncilCard from '../Cards/CouncilCard';
 import { useFocusEffect } from '@react-navigation/native';
-import WavyBackground2 from '../Background/WavyBackground2';
 import baseURL  from './Api';
 
 export default function HomeScreen({ route, navigation }) {
   const { width } = useWindowDimensions();
   const [councilData, setCouncilData] = useState([]);
- const { memberID } = route.params;
   const [memberId, setMemberId] = useState(null);
-  const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
+  // Handle hardware back button
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -169,15 +168,13 @@ export default function HomeScreen({ route, navigation }) {
           ],
           { cancelable: false }
         );
-        return true; // prevent default behavior
+        return true;
       });
-
-      // Cleanup using subscription.remove()
       return () => backHandler.remove();
     }, [])
   );
 
-
+  // Fetch user data from AsyncStorage
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -189,70 +186,59 @@ export default function HomeScreen({ route, navigation }) {
         console.error('Error fetching user data:', error);
       }
     };
- fetchUserData()
+    fetchUserData();
   }, []);
 
-    const getUserData = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem('userData');
-        return jsonValue != null ? JSON.parse(jsonValue) : null;
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-      }
-    };
-  
-  
-
-  // useEffect(() => {
-  //   GetCouncils();
-  // }, []);
-
-  const [loading, setLoading] = useState(false)
-  const GetCouncils = async () => {
-    console.log("Member ID: " + memberID)
-    setLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
+  const getUserData = async () => {
     try {
-      const response = await fetch(`${baseURL}Council/GetCouncils?memberId=${memberID}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const json = await response.json();
-      if (response.ok) {
-        console.log("Councils loaded successfully.")
-        //console.log(json)
-        setCouncilData(json);
-        setFilteredData(json);
-      } else if( response.status == 204) {
-        Alert.alert('No Councils Found ')
-      }
-      else{
-        Alert.alert('Error', 'Failed to load Data' + json);
-      }
+      const jsonValue = await AsyncStorage.getItem('userData');
+      return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (error) {
-      console.log('An error occurred while loading Data')
-      //Alert.alert('Error', '');
+      console.error('Failed to fetch user data:', error);
     }
-    setLoading(false)
   };
 
-  useFocusEffect(
-    useCallback(() => {
+  // Fetch councils once memberId is ready
+  useEffect(() => {
+    if (memberId) {
       GetCouncils();
-    }, []) 
-  );
+    }
+  }, [memberId]);
 
-  const handlePress = () => {
+  // Fetch council data from API
+  const GetCouncils = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseURL}Council/GetCouncils?memberId=${memberId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const json = await response.json();
+
+      if (response.ok) {
+        setCouncilData(json);
+        setFilteredData(json);
+      } else if (response.status === 204) {
+        setCouncilData([]);
+        setFilteredData([]);
+        Alert.alert('No Councils Found');
+      } else {
+        console.error('API Error:', json);
+        Alert.alert('Error', json?.message || 'Failed to load data.');
+      }
+    } catch (error) {
+      console.error('API fetch error:', error);
+      Alert.alert('Error', 'Failed to load data. Please try again.');
+    }
+    setLoading(false);
+  };
+
+  const handleLogout = () => {
     Alert.alert(
       'Are you sure?',
       'Do you want to log out?',
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Ok',
           onPress: async () => {
@@ -260,7 +246,7 @@ export default function HomeScreen({ route, navigation }) {
               closeMenu();
               await AsyncStorage.removeItem('userToken');
               navigation.replace('Login');
-              console.log('Data Cleared and Logged Out.')
+              console.log('Logged out successfully.');
             } catch (error) {
               Alert.alert('Error', 'Failed to log out.');
             }
@@ -272,11 +258,11 @@ export default function HomeScreen({ route, navigation }) {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    if (query === '') {
-      setFilteredData(councilData); // Reset to original data if search is cleared
+    if (!query) {
+      setFilteredData(councilData);
     } else {
       const filtered = councilData.filter((council) =>
-        council.Name.toLowerCase().includes(query.toLowerCase()) // Search by name
+        council.Name.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredData(filtered);
     }
@@ -291,14 +277,12 @@ export default function HomeScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <WavyBackground2 />
-    
-      <View style={styles.headerContainer}>
 
-        
+      <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Neighborhood</Text>
         <Text style={styles.headerText}>Council</Text>
       </View>
-      
+
       <TextInput
         style={styles.searchBox}
         placeholder="Search Councils..."
@@ -309,7 +293,6 @@ export default function HomeScreen({ route, navigation }) {
 
       <View style={styles.contentContainer}>
         <FlatList
-          // data={councilData}
           data={filteredData}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCouncilCard}
@@ -325,32 +308,32 @@ export default function HomeScreen({ route, navigation }) {
           contentContainerStyle={styles.listContent}
         />
       </View>
+
       <Provider>
-      <View style={{flex: 1}}>
-      <Portal>
+        <Portal>
           <FAB.Group
             open={isOpen}
-            icon={isOpen ? 'close' : 'plus'} // Changes from "+" to "x" when open
+            icon={isOpen ? 'close' : 'plus'}
             backgroundColor="#F0C38E"
             actions={[
               {
                 icon: 'pencil',
                 label: 'Add New Council',
-                onPress: () => navigation.navigate('JoinCouncil', { memberID: memberId }),
-                labelStyle: { color: 'black' }, // Change the label color
-                color: 'white', // Change the icon color
+                onPress: () => navigation.replace('JoinCouncil', { memberID: memberId }),
+                labelStyle: { color: 'black' },
+                color: 'white',
               },
             ]}
             onStateChange={({ open }) => setIsOpen(open)}
             fabStyle={styles.fab}
-            backdropColor="transparent" // Removes the black background
+            backdropColor="transparent"
             style={styles.fabGroup}
             color="#F0C38E"
           />
         </Portal>
-        </View>
-        </Provider>
-        <FAB
+      </Provider>
+
+      <FAB
         icon="dots-vertical"
         style={styles.fab3}
         color="#000"
@@ -358,30 +341,19 @@ export default function HomeScreen({ route, navigation }) {
       />
 
       {/* Menu Modal */}
-      <Modal
-        visible={menuVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closeMenu}
-      >
+      <Modal visible={menuVisible} transparent={true} animationType="fade" onRequestClose={closeMenu}>
         <TouchableOpacity style={styles.modalOverlay} onPress={closeMenu}>
           <View style={styles.menuContainer}>
-            <TouchableOpacity
-              style={styles.menuOption}
-              onPress={() => {
-                navigation.navigate('ProfileScreen');
-                closeMenu();
-              }}
-            >
+            <TouchableOpacity style={styles.menuOption} onPress={() => { navigation.navigate('ProfileScreen'); closeMenu(); }}>
               <Text style={styles.menuText}>Profile</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuOption} onPress={handlePress}>
+            <TouchableOpacity style={styles.menuOption} onPress={handleLogout}>
               <Text style={styles.menuText}>Sign Out</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
+
       <Image
         source={require('../assets/Footer.png')}
         style={[styles.footer, { width: width }]}
@@ -392,119 +364,23 @@ export default function HomeScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  container2: {
-    flex: 1,
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-  },
-  headerContainer: {
-    alignItems: 'flex-start',
-    marginTop: 30,
-    marginLeft: 5,
-    marginBottom: 10,
-  },
-  headerText: {
-    fontFamily: 'KronaOne-Regular',
-    fontSize: 25,
-    color: '#000',
-    marginBottom: 15,
-  },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 0,
-    paddingBottom: 80,
-  },
-  listContent: {
-    marginTop: 10,
-    paddingBottom: 0,
-  },
-  cardContainer: {
-    borderRadius: 20,
-    padding: 0,
-  },
-  searchBox: {
-    height: 50,
-    marginHorizontal: 15,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    color : 'black',
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-  },
-  fab: {
-    backgroundColor: '#555',
-  },
-  fabGroup: {
-    position: 'absolute', // Ensures it doesn’t affect surrounding layout
-    right: 10,
-    bottom: 80,
-  },
-  fab1: {
-    position: 'absolute',
-    left: 20,
-    bottom: 90,
-    backgroundColor: '#F0C38E',
-  },
-  fab2: {
-    position: 'absolute',
-    left: 90,
-    bottom: 90,
-    backgroundColor: '#F0C38E',
-  }, 
-  fab3: {
-    position: 'absolute',
-    right: 20,
-    top: 30,
-    backgroundColor: '#f5d8a0',
-    borderRadius: 25
-  },
-  optionsButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-  },
-  optionsText: {
-    fontSize: 24,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-  },
-  menuContainer: {
-    marginTop: 70, // Positioned below the FAB at top-right
-    marginRight: 25,
-    width: 150,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
-  menuOption: {
-    paddingVertical: 10,
-  },
-  menuText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    zIndex: -1,
-  },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  headerContainer: { alignItems: 'flex-start', marginTop: 30, marginLeft: 5, marginBottom: 10 },
+  headerText: { fontFamily: 'KronaOne-Regular', fontSize: 25, color: '#000', marginBottom: 15 },
+  contentContainer: { flex: 1, paddingHorizontal: 0, paddingBottom: 80 },
+  listContent: { marginTop: 10, paddingBottom: 0 },
+  cardContainer: { borderRadius: 20, padding: 0 },
+  searchBox: { height: 50, marginHorizontal: 15, marginBottom: 10, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1, color : 'black', borderColor: '#ccc', backgroundColor: '#fff' },
+  fab: { backgroundColor: '#555' },
+  fabGroup: { position: 'absolute', right: 10, bottom: 80 },
+  fab3: { position: 'absolute', right: 20, top: 30, backgroundColor: '#f5d8a0', borderRadius: 25 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-start', alignItems: 'flex-end' },
+  menuContainer: { marginTop: 70, marginRight: 25, width: 150, backgroundColor: '#fff', borderRadius: 8, paddingVertical: 10, paddingHorizontal: 15, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 4, elevation: 8 },
+  menuOption: { paddingVertical: 10 },
+  menuText: { fontSize: 16, color: '#333' },
+  footer: { position: 'absolute', bottom: 0, zIndex: -1 },
 });
+
 
 
 // /////////////  Modal Code

@@ -10,10 +10,10 @@ export default function AdministrateElection ({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <WavyBackground />
       <Text style={styles.titleText}>Setup the Panel Election</Text>
-     <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('Create Election', {councilID: councilId})}}>
+     <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.replace('Create Election', {councilID: councilId})}}>
           <Text style={styles.signInButtonText}>Create New Election</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ViewNomination' , {councilId: councilId})}}>
+        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.replace('ViewNomination' , {councilId: councilId})}}>
             <Text style={styles.signInButtonText}>View Nomination</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('View Election' , {councilID: councilId})}}>

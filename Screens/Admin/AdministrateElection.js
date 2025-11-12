@@ -19,7 +19,7 @@ export default function AdministrateElection ({ navigation, route }) {
         <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('View Election' , {councilID: councilId})}}>
             <Text style={styles.signInButtonText}>View Election</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('Election History' , {councilID: councilId})}}>
+        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.replace('Election History' , {councilID: councilId})}}>
             <Text style={styles.signInButtonText}>Election History</Text>
         </TouchableOpacity>
 

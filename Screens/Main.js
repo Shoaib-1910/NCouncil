@@ -16,6 +16,15 @@ import InviteResident from './Admin/InviteResident';
 import CreateElection from './Election/CreateElection';
 import ViewElection from './Election/ViewElection';
 import ViewNomination from './Election/ViewNominations';
+import ResidentScreen from './ResidentScreen';
+import NominatePanel from './Election/NominatePanel';
+import CommitteeMemberScreen from './CommitteeMemberScreen';
+import ChairmanScreen from './ChairmanScreen';
+import TreasurerScreen from './TreasurerScreen';
+import ElectionHistory from './Election/ElectionHistory';
+
+
+
 
 
 const Stack = createNativeStackNavigator();
@@ -41,6 +50,13 @@ export default function Main() {
            <Stack.Screen name="Create Election" component={CreateElection} />
            <Stack.Screen name="View Election" component={ViewElection} />
             <Stack.Screen name="ViewNomination" component={ViewNomination} />
+            <Stack.Screen name="ResidentScreen" component={ResidentScreen} />
+             <Stack.Screen name="NominatePanel" component={NominatePanel} />
+             <Stack.Screen name="CommitteeMemberScreen" component={CommitteeMemberScreen} />
+              <Stack.Screen name="ChairmanScreen" component={ChairmanScreen} />
+               <Stack.Screen name="TreasurerScreen" component={TreasurerScreen} />
+               <Stack.Screen name="ElectionHistory" component={ElectionHistory} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

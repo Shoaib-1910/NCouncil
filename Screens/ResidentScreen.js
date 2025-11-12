@@ -4,6 +4,7 @@ import WavyBackground from '../Background/WavyBackground';
 const screenWidth = Dimensions.get('window').width;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DividerLine from '../Background/LineDivider';
+import baseURL from './Api'
 
 export default function ResidentScreen ({ route, navigation }) {
   const { width } = useWindowDimensions(); // screen width
@@ -126,12 +127,12 @@ export default function ResidentScreen ({ route, navigation }) {
   };
 
   const handleNominationScreen = () => {
-    navigation.navigate('NominatePanel', { councilId: Council })
+    navigation.replace('NominatePanel', { councilId: Council })
     closeMenu3()
   }
   
   const handleNominationViewScreen = () => {
-    navigation.navigate('ViewNomination', { councilId: Council })
+    navigation.replace('ViewNomination', { councilId: Council })
     closeMenu3()
   }
 

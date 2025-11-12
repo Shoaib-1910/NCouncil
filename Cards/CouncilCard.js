@@ -42,19 +42,19 @@ export default function CouncilCard({ route, council, navigation, member, displa
             navigation.replace('AdminScreen', {role, Council : council.id});
             break;
           case 'Member':
-            navigation.navigate('ResidentScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.replace('ResidentScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
             break;
           case 'Councillor':
-            navigation.navigate('CommitteeMemberScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.replace('CommitteeMemberScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
             break;
           case 'Chairperson':
-            navigation.navigate('ChairmanScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.replace('ChairmanScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
           break;
           case 'Treasurer':
-            navigation.navigate('TreasurerScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.replace('TreasurerScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
           break;
           case 'Secratary':
-            navigation.navigate('SecrataryScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.replace('SecrataryScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
           break;
           
           default:

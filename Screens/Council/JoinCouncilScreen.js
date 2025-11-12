@@ -2,13 +2,34 @@ import React, { useEffect, useState } from 'react';
 import {Text, TouchableOpacity ,Button, Image, SafeAreaView, StyleSheet, TextInput, useWindowDimensions, View, Alert, ActivityIndicator } from 'react-native';
 import WavyBackground from '../../Background/WavyBackground';
 import WavyBackground2 from '../../Background/WavyBackground2';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import baseURL from '../Api'
 
 export default function JoinCouncil ({route, navigation}) {
   const { width } = useWindowDimensions(); // screen width
   const [councilLink, setCouncilLink] = useState('');
-  const { memberID } = route.params;
+//  const { memberID } = route.params;
+  const [memberID, setMemberID] = useState(null);
   const [loading, setLoading] = useState(false)
 
+
+useEffect(() => {
+  const loadMemberID = async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setMemberID(userData.memberId);  // This is the ID
+      } else {
+        console.warn('No user data found in AsyncStorage');
+      }
+    } catch (error) {
+      console.error('Error loading memberID from AsyncStorage', error);
+    }
+  };
+
+  loadMemberID();
+}, []);
   const JoinCouncilUsingJoinCode = async () => {
     if(!councilLink){
       Alert.alert('Please Enter Code to Join Council.')
@@ -40,8 +61,10 @@ export default function JoinCouncil ({route, navigation}) {
         Alert.alert('Error', 'Failed to load Data');
       }
     } catch (error) {
-      Alert.alert('Error', 'No Councils Associated with this Code');
-    }
+        console.error('Error joining council:', error);
+        Alert.alert('Error', error.message || 'Something went wrong.');
+      }
+
     setLoading(false)
   };
 

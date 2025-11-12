@@ -11,7 +11,8 @@ export default function NominatePanel ({route, navigation}) {
   const { width } = useWindowDimensions(); // screen width
   const {councilId} = route.params;
   const [membersName, setMembersName] = useState([]);
-  const [candidateId, setCandidateId] = useState(0)
+  const [candidateId, setCandidateId] = useState(0);
+  const [age, setAge] = useState('');
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [selectedCandidates, setSelectedCandidates] = useState([]);
   const [roles] = useState([
@@ -86,12 +87,11 @@ export default function NominatePanel ({route, navigation}) {
       Alert.alert('Please Fill All Fields!')
       return;
     }
-    // if(selectedMembers.length < 2)
-    // {
-    //     Alert.alert('Please Select upto 2 panel Members!')
-    //     return;
-    // }
-    const payload = { 
+     if(parseInt(age) < 18){
+        Alert.alert('Age must be greater than 18!');
+        return;
+      }
+    const payload = {
       CandidateId : memberId,
       panelMembers : selectedMembers.map(({ value, role }) => ({ MemberId: value, Role: role })),
       PanelName : panel,
@@ -180,7 +180,7 @@ const getNomination = async () => {
   } catch (error) {
     console.log('Unable to Fetch Data:', JSON.stringify(error));
   }
-}; 
+};
 
 //Remove Nomination for election
 const removeNomination = async(candidateId) =>{
@@ -224,7 +224,7 @@ const renderCandidate = ({ item }) => (
        paddingHorizontal: 5,
        borderBottomWidth: 1,
        borderBottomColor: 'gray',
-       
+
      }}>
     <Text style={styles.candidateName}>Candidate: {item.CandidateName}</Text>
     <Text style={styles.panelName}>Panel Name: {item.PanelName}</Text>
@@ -232,7 +232,7 @@ const renderCandidate = ({ item }) => (
     <Text style={styles.membersHeading}>Panel Members:</Text>
     <View>
     {item.PanelMembers.map((member) => (
-      <Text key={member.MemberId} style={styles.memberName}> {member.MemberName} ⁓{member.MemberRole}, 
+      <Text key={member.MemberId} style={styles.memberName}> {member.MemberName} ⁓{member.MemberRole},
       </Text>
     ))}
     </View>
@@ -255,13 +255,13 @@ const getMembersName = async () => {
     try {
       console.log('Loading Members Name..')
       const response = await fetch(`${baseURL}Council/GetCouncilMembers?councilId=${councilId}`);
-     
+
       if (response.ok) {
         console.log('Members Name Response' + response)
-        const responseText = await response.text(); 
+        const responseText = await response.text();
         console.log('Members Name Loaded!')
         if (responseText) {
-          const data = JSON.parse(responseText); 
+          const data = JSON.parse(responseText);
           // Format data for the dropdown
           if (data && data.length > 0) {
             console.log('Members Name' + data)
@@ -288,7 +288,7 @@ const getMembersName = async () => {
                   },
                 },
               ]
-            );  
+            );
           }
         } else {
           Alert.alert(
@@ -325,12 +325,12 @@ const getMembersName = async () => {
     }
     else{
       return 'Secretary'
-    } 
+    }
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <WavyBackground2 /> 
+      <WavyBackground2 />
       <View style={styles.cont}>
       <Text style={styles.titleText}>Setup your Panel</Text>
    {panelFound? (
@@ -341,9 +341,18 @@ const getMembersName = async () => {
       {/* <FlatList
           data={membersName}
           renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()} 
+          keyExtractor={(item, index) => index.toString()}
           ListEmptyComponent={<Text style={{color: 'black'}}>No members found</Text>}
         /> */}
+
+          <TextInput
+                      style={styles.input}
+                      placeholder="Enter Age"
+                      keyboardType='numeric'
+                      onChangeText={setAge}
+                      value={age}
+                      placeholderTextColor="#000"
+                    />
         <View style={styles.setText}>
         <Text style={styles.candidateText}>
           Create your Panel{'\n'}
@@ -354,8 +363,8 @@ const getMembersName = async () => {
         data={membersName}
         style={styles.dropDown}
         maxHeight={200}
-        labelField="label"   
-        valueField="value"   
+        labelField="label"
+        valueField="value"
         placeholderTextColor = '#000'
         placeholder="Select Candidate"
         value={candidateId}
@@ -416,7 +425,7 @@ const getMembersName = async () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
               Assign Role to {selectedMember?.label || 'Unknown Member'}
-            </Text> 
+            </Text>
             <FlatList
               data={roles}
               keyExtractor={(item) => item.value}
@@ -439,7 +448,7 @@ const getMembersName = async () => {
         {selectedMembers.map((member) => (
           <View key={member.value} style={styles.memberChip}>
             <Text style={styles.memberName}>{member.label}  ⁓ {fetchRole(member.role)}</Text>
-            <TouchableOpacity onPress={() => removePanelMember(member.value)}>  
+            <TouchableOpacity onPress={() => removePanelMember(member.value)}>
               <Text style={styles.removeText}>✖</Text>
             </TouchableOpacity>
           </View>
@@ -454,7 +463,7 @@ const getMembersName = async () => {
       </TouchableOpacity>
       </>
           )}
-      
+
       <DividerLine/>
        <FlatList
                 style={{marginTop:5, marginBottom : 70}}
@@ -464,7 +473,7 @@ const getMembersName = async () => {
                 ListEmptyComponent={<Text style={{color: 'black'}}>No Nomination Made!</Text>}
                 />
       </View>
-      
+
       <View style={styles.footerContainer}>
         <Image
           source={require('../../assets/Footer.png')}
@@ -515,12 +524,12 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 15,
   },
-  selectedMembersContainer: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
+  selectedMembersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     marginTop: 10,
     marginLeft: 20,
-    marginBottom : 5 
+    marginBottom : 5
     },
   memberChip: {
     flexDirection: 'row',
@@ -530,38 +539,38 @@ const styles = StyleSheet.create({
     margin: 5,
     borderRadius: 20,
   },
-  memberName: { 
-    color: 'black', 
+  memberName: {
+    color: 'black',
     marginRight: 10,
     },
-  removeText: { 
+  removeText: {
     marginLeft: 5,
-    color: 'red', 
-    fontWeight: 'bold', 
-    fontSize: 16 
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 16
     },
-  submitButton: { 
-    backgroundColor: '#f5d8a0', 
+  submitButton: {
+    backgroundColor: '#f5d8a0',
     padding: 17,
-    width: '50%', 
-    borderRadius: 20 
+    width: '50%',
+    borderRadius: 20
     },
-  buttonText: { 
-    color: '#000', 
-    fontWeight: 'bold', 
+  buttonText: {
+    color: '#000',
+    fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 16
     },
-    submitButton2: { 
-      backgroundColor: '#222', 
+    submitButton2: {
+      backgroundColor: '#222',
       padding: 17,
-      width: '40%', 
+      width: '40%',
       borderRadius: 20,
-      marginBottom: 10, 
+      marginBottom: 10,
       },
-    buttonText2: { 
-      color: '#ffffff', 
-      fontWeight: 'bold', 
+    buttonText2: {
+      color: '#ffffff',
+      fontWeight: 'bold',
       textAlign: 'center',
       fontSize: 16
       },
@@ -644,7 +653,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     position: 'absolute',
-    bottom: 0, 
+    bottom: 0,
     width: '100%',
     alignItems: 'center',
   },

@@ -147,7 +147,7 @@ export default function SignUp () {
         <Text style={styles.header}>Council</Text>
         <TextInput style={styles.input} placeholder="Enter Full Name" keyboardType="default" onChangeText={setFname} placeholderTextColor="#000" />
         <TextInput style={styles.input} placeholder="Phone No" keyboardType="phone-pad" onChangeText={setPhoneNo} placeholderTextColor="#000" />
-       <TextInput style={styles.input} placeholder="Enter Email" keyboardType="phone-pad" onChangeText={setEmail} placeholderTextColor="#000" />
+       <TextInput style={styles.input} placeholder="Enter Email" keyboardType="default" onChangeText={setEmail} placeholderTextColor="#000" />
         <Text style={styles.radioText }> Gender   </Text>
         <View style={{marginBottom: 10, justifyContent:'center', flexDirection: 'row' }} >
       <TouchableOpacity onPress={() => setGender('M')}>

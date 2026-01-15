@@ -234,7 +234,7 @@ export default function CreateElection({ navigation, route }) {
       const json = await response.json();
       if (response.ok) {
         Alert.alert('Success!', 'Election Added Successfully, Now head over to View Election!', 
-            [{ text: 'OK', onPress: () => navigation.replace('View Election' , {councilID: councilID})}]);
+            [{ text: 'OK', onPress: () => navigation.navigate('ViewElection' , {councilID: councilID})}]);
         console.log('Election Added Successfully');
       } else if(response.status == 302){
         Alert.alert('Error', 'Election Already Exists, Close the previous one First!');

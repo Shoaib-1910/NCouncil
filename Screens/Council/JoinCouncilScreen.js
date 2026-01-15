@@ -49,7 +49,7 @@ useEffect(() => {
         const json = await response.json();
         console.log(JSON.stringify(json));
         Alert.alert('Council added successfully!', 'Now you will be redirected to Home.', 
-          [{ text: 'OK', onPress: () => navigation.replace('HomeScreen', { member: memberID })}]);
+          [{ text: 'OK', onPress: () => navigation.navigate('HomeScreen', { member: memberID })}]);
       } 
       else if( response.status == 403) {
         Alert.alert('No Council Found with this Join Code')

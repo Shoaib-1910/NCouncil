@@ -245,7 +245,11 @@ export default function HomeScreen({ route, navigation }) {
             try {
               closeMenu();
               await AsyncStorage.removeItem('userToken');
-              navigation.replace('Login');
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              });
+
               console.log('Logged out successfully.');
             } catch (error) {
               Alert.alert('Error', 'Failed to log out.');
@@ -311,25 +315,29 @@ export default function HomeScreen({ route, navigation }) {
 
       <Provider>
         <Portal>
-          <FAB.Group
-            open={isOpen}
-            icon={isOpen ? 'close' : 'plus'}
-            backgroundColor="#F0C38E"
-            actions={[
-              {
-                icon: 'pencil',
-                label: 'Add New Council',
-                onPress: () => navigation.replace('JoinCouncil', { memberID: memberId }),
-                labelStyle: { color: 'black' },
-                color: 'white',
-              },
-            ]}
-            onStateChange={({ open }) => setIsOpen(open)}
-            fabStyle={styles.fab}
-            backdropColor="transparent"
-            style={styles.fabGroup}
-            color="#F0C38E"
-          />
+  <FAB.Group
+    open={isOpen}
+    icon={isOpen ? 'close' : 'plus'}
+    actions={[
+      {
+        icon: 'pencil',
+        label: 'Add New Council',
+        onPress: () => {
+          setIsOpen(false);
+          setTimeout(() => {
+            navigation.navigate('JoinCouncil', { memberID: memberId });
+          }, 150);
+        },
+        labelStyle: { color: 'black' },
+        color: 'white',
+      },
+    ]}
+    onStateChange={({ open }) => setIsOpen(open)}
+    fabStyle={styles.fab}
+    backdropColor="transparent"
+    style={styles.fabGroup}
+  />
+
         </Portal>
       </Provider>
 

@@ -518,7 +518,7 @@ import baseURL, { baseImageURL } from '../Api';
 import WavyBackground2 from '../../Background/WavyBackground2';
 import DividerLine from '../../Background/LineDivider';
 
-export default function ViewProblemHierarchy({ navigation, route }) {
+export default function ViewProblemProgress({ navigation, route }) {
   const { problemId } = route.params;
   const [hierarchy, setHierarchy] = useState(null);
   const [loading, setLoading] = useState(true);

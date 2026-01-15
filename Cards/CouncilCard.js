@@ -39,22 +39,22 @@ export default function CouncilCard({ route, council, navigation, member, displa
       if (response.ok) {
         switch (role) {
           case 'Admin':
-            navigation.replace('AdminScreen', {role, Council : council.id});
+            navigation.navigate('AdminScreen', {role, Council : council.id});
             break;
           case 'Member':
-            navigation.replace('ResidentScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.navigate('ResidentScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
             break;
           case 'Councillor':
-            navigation.replace('CommitteeMemberScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.navigate('CommitteeMemberScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
             break;
           case 'Chairperson':
-            navigation.replace('ChairmanScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.navigate('ChairmanScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
           break;
           case 'Treasurer':
-            navigation.replace('TreasurerScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.navigate('TreasurerScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
           break;
           case 'Secratary':
-            navigation.replace('SecrataryScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
+            navigation.navigate('SecrataryScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
           break;
           
           default:

@@ -10,16 +10,16 @@ export default function AdministrateElection ({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <WavyBackground />
       <Text style={styles.titleText}>Setup the Panel Election</Text>
-     <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.replace('Create Election', {councilID: councilId})}}>
+     <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('CreateElection', {councilID: councilId})}}>
           <Text style={styles.signInButtonText}>Create New Election</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.replace('ViewNomination' , {councilId: councilId})}}>
+        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ViewNomination' , {councilId: councilId})}}>
             <Text style={styles.signInButtonText}>View Nomination</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('View Election' , {councilID: councilId})}}>
+        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ViewElection' , {councilID: councilId})}}>
             <Text style={styles.signInButtonText}>View Election</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.replace('Election History' , {councilID: councilId})}}>
+        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ElectionHistory' , {councilID: councilId})}}>
             <Text style={styles.signInButtonText}>Election History</Text>
         </TouchableOpacity>
 

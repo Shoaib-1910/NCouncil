@@ -26,27 +26,33 @@ export default function ViewElection ({ route , navigation}) {
   const [intervalTime, setIntervalTime] = useState(15000);
   const [electionStatus, setElectionStatus] = useState('')
 
-  useEffect(() => {
-    if (electionData.length > 0) {
-      const activeElection = electionData.find((ele) => ele.Status === "Active");
-      if (activeElection) {
-        setElectionId(activeElection.ElectionId);
-        setIsActive(true);
-        fetchElectionData();
-        console.log('Election is Active')
-      } 
-      const initiatedElection = electionData.find((ele) => ele.Status === 'Initiated')
-      if(initiatedElection){
-        console.log('Election is Initiated')
-        setElectionId(initiatedElection.ElectionId)
-        setElectionFound(true)
-      }
-    }else if( electionData == 0){
-      console.log('No Election Found')
-      setElectionFound(false)
-      setIsActive(false)
-    }
-  }, [electionData, electionId, isActive]); // Runs only when `electionData` changes
+useEffect(() => {
+  if (!electionData.length) return;
+
+  const activeElection = electionData.find(e => e.Status === 'Active');
+  const initiatedElection = electionData.find(e => e.Status === 'Initiated');
+
+  if (activeElection) {
+    setElectionId(activeElection.ElectionId);
+    setIsActive(true);
+    setElectionFound(false);
+  } else if (initiatedElection) {
+    setElectionId(initiatedElection.ElectionId);
+    setIsActive(false);
+    setElectionFound(true);
+  } else {
+    setIsActive(false);
+    setElectionFound(false);
+  }
+}, [electionData]);
+
+ // Runs only when `electionData` changes
+
+useEffect(() => {
+  if (!isActive || !electionId) return;
+
+  fetchElectionData();
+}, [isActive, electionId]);
 
   useEffect(() => {
     // Transform electionData to extract all panels
@@ -60,9 +66,9 @@ export default function ViewElection ({ route , navigation}) {
     const interval = setInterval(() => {
       triggerElection();
     }, intervalTime);
-  
+
     return () => clearInterval(interval);
-  }, [intervalTime, sDate, eDate, councilID, electionId, electionStatus]); // Re-run the effect if `intervalTime` changes 
+  }, [intervalTime, sDate, eDate, councilID, electionId, electionStatus]); // Re-run the effect if `intervalTime` changes
   
 
 //Retreiving elections data with nominations to start the elections
@@ -188,19 +194,19 @@ const triggerElection = () => {
   console.log("Current Date:", now);
   console.log("End Date:", endDate);
   console.log('Election Status: ' + electionStatus)
-  
+
   // Check if the election should start
   if (now >= startDate && now < endDate) {
     if(electionStatus !== 'Active'){
     startElection();
     console.log("Election has started!");
   }
-} 
+}
   // Check if the election should end
   else if (now >= endDate) {
     closeElection(electionId, councilID);
     console.log("Election has ended!");
-  } 
+  }
   // If neither condition is met
   else {
     console.log("Election not active.");

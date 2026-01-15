@@ -7,7 +7,7 @@ import baseURL from '../Api'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WavyBackground2 from '../../Background/WavyBackground2';
 
-export default function ReportProblem ({route}) {
+export default function ReportProblem ({navigation, route}) {
   const { width } = useWindowDimensions(); // screen width
   const [pending, setPending] = useState(0);
   const [open, setOpen] = useState(0);
@@ -21,7 +21,7 @@ export default function ReportProblem ({route}) {
   const [preference, setPreference] = useState(null)
   const [memberId, setMemberId] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const navigation = useNavigation()
+
 
 
   useEffect(() => {

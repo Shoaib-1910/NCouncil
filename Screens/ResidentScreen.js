@@ -127,12 +127,12 @@ export default function ResidentScreen ({ route, navigation }) {
   };
 
   const handleNominationScreen = () => {
-    navigation.replace('NominatePanel', { councilId: Council })
+    navigation.navigate('NominatePanel', { councilId: Council })
     closeMenu3()
   }
   
   const handleNominationViewScreen = () => {
-    navigation.replace('ViewNomination', { councilId: Council })
+    navigation.navigate('ViewNomination', { councilId: Council })
     closeMenu3()
   }
 
@@ -494,65 +494,66 @@ const leaveCouncil = async (councilId, memberId) => {
 
 
      {/* Menu Modal for Nominations*/}
-    {!isElectionActive? (
-            <TouchableOpacity 
-            style={styles.button} 
-            onPress={openMenu3}
-          >
-            <Image source={require('../assets/nominate.png')} style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Nominate Panel</Text>
-          </TouchableOpacity>
-    ):(      
-    <View 
-      style={styles.button2} 
-      onPress={{}}
+    <TouchableOpacity
+      style={styles.button}
+      onPress={openMenu3}
     >
-      <Image source={require('../assets/nominate.png')} style={styles.buttonIcon} />
+      <Image
+        source={require('../assets/nominate.png')}
+        style={styles.buttonIcon}
+      />
       <Text style={styles.buttonText}>Nominate Panel</Text>
-    </View>
-  )}
-      <Modal
-        visible={menuVisibleForNomination}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closeMenu3}
-      >
-        <View style={styles.modalOverlay} >
-          <View style={styles.menuContainer}>
-            {/* Modal Header with Close Button */}
-            <View style={styles.headerContainer2}>
-              <Text style={styles.headerText}>Setup Nomination</Text>
-              <TouchableOpacity onPress={closeMenu3} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>X</Text>
-              </TouchableOpacity>
-            </View>
+    </TouchableOpacity>
 
-      {/* Modal Content */}
-      <View style={styles.modalContent}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleNominationScreen}
-        >
-          <Image
-            source={require('../assets/setNomination.png')}
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Nominate Panel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleNominationViewScreen}
-        >
-          <Image
-            source={require('../assets/viewNomination.png')}
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>View All Nominations</Text>
-        </TouchableOpacity>
+    <Modal
+      visible={menuVisibleForNomination}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={closeMenu3}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.menuContainer}>
+
+          {/* Modal Header */}
+          <View style={styles.headerContainer2}>
+            <Text style={styles.headerText}>Setup Nomination</Text>
+            <TouchableOpacity
+              onPress={closeMenu3}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Modal Content */}
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleNominationScreen}
+            >
+              <Image
+                source={require('../assets/setNomination.png')}
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.buttonText}>Nominate Panel</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleNominationViewScreen}
+            >
+              <Image
+                source={require('../assets/viewNomination.png')}
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.buttonText}>View All Nominations</Text>
+            </TouchableOpacity>
+          </View>
+
+        </View>
       </View>
-    </View>
-  </View>
-</Modal>
+    </Modal>
+
 
 
     </View>

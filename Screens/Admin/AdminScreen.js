@@ -135,21 +135,21 @@ return (
     <Text style={styles.memberCount}>Members: {membersCount}</Text>
     {/* Invite Resident */}
     <View style={styles.iconRow}>
-      <TouchableOpacity onPress={() => navigation.replace('Invite Resident', { councilId: Council })}>
+      <TouchableOpacity onPress={() => navigation.navigate('InviteResident', { councilId: Council })}>
         <View style={styles.iconContainer}>
           <Image source={require('../../assets/JoinLink.png')} style={styles.icon} />
         <Text style={styles.iconLabel}>Invite</Text>
       </View>
       </TouchableOpacity>
       {/* Announcement Icon */}
-      <TouchableOpacity onPress={() => navigation.replace('Announcement', {councilId: Council})}>
+      <TouchableOpacity onPress={() => navigation.navigate('Announcement', {councilId: Council})}>
         <View style={styles.iconContainer}>
           <Image source={require('../../assets/announcement.png')} style={styles.icon} />
           <Text style={styles.iconLabel}>Announce</Text>
         </View>
       </TouchableOpacity>
       {/* Election Icon */}
-    <TouchableOpacity onPress={() => navigation.replace('Administrate Election', { councilId: Council })}>
+    <TouchableOpacity onPress={() => navigation.navigate('AdministrateElection', { councilId: Council })}>
       <View style={styles.iconContainer}>
         <Image source={require('../../assets/election.png')} style={styles.icon} />
         <Text style={styles.iconLabel}>Election</Text>

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   BackHandler,
-  Modal
+  // Modal
 } from 'react-native';
 import WavyBackground from '../../Background/WavyBackground';
 import baseURL from '../Api';
@@ -24,9 +24,11 @@ export default function Login() {
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [otpVisible, setOtpVisible] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [loginPhoneNo, setLoginPhoneNo] = useState('');
+
+  // 🔴 OTP STATES TEMPORARILY DISABLED
+  // const [otpVisible, setOtpVisible] = useState(false);
+  // const [otp, setOtp] = useState('');
+  // const [loginPhoneNo, setLoginPhoneNo] = useState('');
 
   // Handle hardware back button
   useFocusEffect(
@@ -63,7 +65,6 @@ export default function Login() {
       const { ip } = await response.json();
       const deviceName = (await DeviceInfo.getModel()) || 'Unknown Device';
 
-
       const newRecord = {
         timestamp: new Date().toISOString(),
         ip,
@@ -76,7 +77,6 @@ export default function Login() {
       const updatedHistory = [newRecord, ...history].slice(0, 10);
 
       await AsyncStorage.setItem('loginHistory', JSON.stringify(updatedHistory));
-      console.log('Login history updated', updatedHistory);
     } catch (error) {
       console.error('Failed to add login history:', error);
     }
@@ -97,7 +97,10 @@ export default function Login() {
     try {
       setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const response = await fetch(`${baseURL}Account/Login?phoneNo=${phoneNo}&password=${password}`);
+
+      const response = await fetch(
+        `${baseURL}Account/Login?phoneNo=${phoneNo}&password=${password}`
+      );
       const json = await response.json();
 
       if (response.ok && json.data) {
@@ -117,8 +120,14 @@ export default function Login() {
         await storeUserData(userData);
         await AsyncStorage.setItem('userToken', 'LoggedIn');
 
-        setLoginPhoneNo(json.data.PhoneNo);
-        setOtpVisible(true);
+        // 🔴 OTP FLOW DISABLED FOR NOW
+        // setLoginPhoneNo(json.data.PhoneNo);
+        // setOtpVisible(true);
+
+        // ✅ DIRECT NAVIGATION AFTER LOGIN
+        await addLoginHistory();
+        navigation.navigate('HomeScreen', { memberID: json.data.PhoneNo });
+
       } else if (response.status === 401) {
         Alert.alert('Error', 'Incorrect Password');
       } else {
@@ -132,45 +141,19 @@ export default function Login() {
     }
   };
 
-  // Handle OTP verification
-  const handleVerifyOtp = async () => {
-    if (!otp.trim()) {
-      Alert.alert('Please enter the OTP');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${baseURL}Account/VerifyOtp?phoneNo=${loginPhoneNo}&otp=${otp}`,
-        { method: 'POST' }
-      );
-      const json = await response.json();
-
-      if (response.ok) {
-        Alert.alert('Success', 'OTP verified successfully!');
-        setOtpVisible(false);
-
-        await addLoginHistory();
-
-        navigation.replace('HomeScreen', { memberID: loginPhoneNo });
-      } else {
-        Alert.alert('Error', json.message || 'Invalid OTP');
-      }
-    } catch (error) {
-      console.error('Error verifying OTP:', error);
-      Alert.alert('Error', 'Failed to verify OTP. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // 🔴 OTP VERIFICATION FUNCTION DISABLED
+  // const handleVerifyOtp = async () => {};
 
   return (
     <View style={styles.container}>
       <WavyBackground />
+
       <View style={styles.logoContainer}>
         <View style={styles.logo}>
-          <Image source={require('../../assets/UserProfile.png')} style={styles.image} />
+          <Image
+            source={require('../../assets/UserProfile.png')}
+            style={styles.image}
+          />
         </View>
       </View>
 
@@ -181,6 +164,7 @@ export default function Login() {
         style={styles.input}
         placeholder="Phone No"
         keyboardType="phone-pad"
+        value={phoneNo}
         onChangeText={setPhoneNo}
         placeholderTextColor="#000"
       />
@@ -190,70 +174,122 @@ export default function Login() {
           style={styles.inputPassword}
           placeholder="Password"
           secureTextEntry={!showPassword}
+          value={password}
           onChangeText={setPassword}
           placeholderTextColor="#000"
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.icon}>
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          style={styles.icon}
+        >
           <IconButton
             icon={showPassword ? 'eye-off' : 'eye'}
             color="black"
-            onPress={() => setShowPassword(!showPassword)}
           />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.signInButton} onPress={handlePress} disabled={loading}>
-        {loading ? <ActivityIndicator size="small" color="#000" /> : <Text style={styles.signInButtonText}>Sign In</Text>}
+      <TouchableOpacity
+        style={styles.signInButton}
+        onPress={handlePress}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#000" />
+        ) : (
+          <Text style={styles.signInButtonText}>Sign In</Text>
+        )}
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.signUpText}>
-          Don’t have an account? <Text style={styles.signUpLink} onPress={() => navigation.navigate('SignUp')}>Sign Up!</Text>
+          Don’t have an account?{' '}
+          <Text style={styles.signUpLink}>Sign Up!</Text>
         </Text>
       </TouchableOpacity>
 
+      {/* 🔴 OTP MODAL TEMPORARILY DISABLED */}
+      {/*
       <Modal visible={otpVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Enter OTP</Text>
-            <TextInput
-              style={styles.otpInput}
-              placeholder="Enter OTP"
-              keyboardType="number-pad"
-              value={otp}
-              onChangeText={setOtp}
-              placeholderTextColor="#000"
-            />
-            <TouchableOpacity style={styles.sendButton} onPress={handleVerifyOtp} disabled={loading}>
-              {loading ? <ActivityIndicator size="small" color="#000" /> : <Text style={styles.sendButtonText}>Send</Text>}
-            </TouchableOpacity>
-          </View>
-        </View>
+        ...
       </Modal>
+      */}
     </View>
   );
 }
 
-// Styles remain the same
 const styles = StyleSheet.create({
-  container: { justifyContent: 'center', alignItems: 'center', flex: 1, backgroundColor: '#fff' },
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+    backgroundColor: '#fff'
+  },
   logoContainer: { marginBottom: 40 },
   image: { height: 150, width: 150 },
-  logo: { width: 150, height: 150, borderRadius: 75, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
-  title: { color: 'black', fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  title1: { fontSize: 24, fontWeight: 'bold', marginBottom: 5, textAlign: 'center', fontFamily: 'KronaOne-Regular', color: '#000' },
-  container2: { width: '100%', alignItems: 'center', position: 'relative' },
-  input: { width: '80%', padding: 15, borderRadius: 25, backgroundColor: '#F8F9FA', marginBottom: 10, color: 'black' },
-  inputPassword: { width: '80%', padding: 15, borderRadius: 25, backgroundColor: '#F8F9FA', marginBottom: 10, color: 'black', paddingRight: 50 },
-  icon: { position: 'absolute', right: '12%', justifyContent: 'center', height: '90%' },
-  signInButton: { width: '80%', padding: 15, borderRadius: 25, backgroundColor: '#f5d8a0', alignItems: 'center', marginBottom: 20 },
-  signInButtonText: { color: '#000', fontWeight: 'bold' },
+  logo: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  title: {
+    color: 'black',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  title1: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    textAlign: 'center',
+    fontFamily: 'KronaOne-Regular',
+    color: '#000'
+  },
+  container2: {
+    width: '100%',
+    alignItems: 'center',
+    position: 'relative'
+  },
+  input: {
+    width: '80%',
+    padding: 15,
+    borderRadius: 25,
+    backgroundColor: '#F8F9FA',
+    marginBottom: 10,
+    color: 'black'
+  },
+  inputPassword: {
+    width: '80%',
+    padding: 15,
+    borderRadius: 25,
+    backgroundColor: '#F8F9FA',
+    marginBottom: 10,
+    color: 'black',
+    paddingRight: 50
+  },
+  icon: {
+    position: 'absolute',
+    right: '12%',
+    justifyContent: 'center',
+    height: '90%'
+  },
+  signInButton: {
+    width: '80%',
+    padding: 15,
+    borderRadius: 25,
+    backgroundColor: '#f5d8a0',
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  signInButtonText: {
+    color: '#000',
+    fontWeight: 'bold'
+  },
   signUpText: { color: '#A0A0A0' },
-  signUpLink: { color: '#F0C38E', fontWeight: 'bold' },
-  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
-  modalBox: { width: '80%', backgroundColor: '#fff', borderRadius: 20, padding: 25, alignItems: 'center', elevation: 10 },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#000', marginBottom: 15 },
-  otpInput: { width: '80%', padding: 10, borderRadius: 10, backgroundColor: '#F8F9FA', color: 'black', textAlign: 'center', marginBottom: 15 },
-  sendButton: { width: '60%', padding: 12, borderRadius: 20, backgroundColor: '#f5d8a0', alignItems: 'center' },
-  sendButtonText: { color: '#000', fontWeight: 'bold' },
+  signUpLink: { color: '#F0C38E', fontWeight: 'bold' }
 });

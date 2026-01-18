@@ -19,18 +19,32 @@ import ViewNomination from './Election/ViewNominations';
 import ResidentScreen from './ResidentScreen';
 import NominatePanel from './Election/NominatePanel';
 import NominateCandidate from './Election/NominateCandidate';
-import CommitteeMemberScreen from './CommitteeMemberScreen';
+
 import ChairmanScreen from './ChairmanScreen';
 import TreasurerScreen from './TreasurerScreen';
 import ElectionHistory from './Election/ElectionHistory';
 import ReportProblem from './ReportProblem/ReportProblem';
 import ViewReportedProblems from './ReportProblem/ViewReportedProblem';
 import SubmitReport from './ReportProblem/SubmitReport';
+import ViewIssues from './ReportProblem/ViewIssues';
+import ViewProblemProgressForPanel from './ReportProblem/ViewProblemProgressForPanel';
 import ViewProblemProgress from './ReportProblem/ViewProblemProgress';
+import ViewIssuesForPanel from './ReportProblem/ViewIssuesForPanel';
 import ProjectDetails from './Project/ProjectsDetails';
 import ShowProjectLogs from './Project/ShowProjectLogs';
+import Project from './Project/Project';
+import ManageProjects from './Project/ManageProjects';
+import AddProject from './Project/AddProject';
+import ProjectLogs from './Project/ProjectLogs';
 import Meeting from './Meeting/Meeting';
 import ScheduleMeeting from './Meeting/ScheduleMeeting';
+import SecrataryScreen from './SecrataryScreen';
+import CommitteeMemberScreen from './CommitteeMemberScreen';
+import Announcement from './Announcement/Announcement';
+import AddAnnouncement from './Announcement/AddAnnouncement';
+import ComplaintDiaryForPanel from './ReportProblem/ComplaintDiaryForPanel';
+import ComplaintDiaryForChairman from './ReportProblem/ComplaintDiaryForChairman';
+import ManageContributions from './Contributions/Contribution';
 const Stack = createNativeStackNavigator();
 
 export default function Main() {
@@ -63,7 +77,7 @@ export default function Main() {
               gestureEnabled: false, // Disable back gesture on home
             }}
           />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
 
           {/* Council Screens */}
           <Stack.Screen name="JoinCouncil" component={JoinCouncil} />
@@ -93,14 +107,33 @@ export default function Main() {
           <Stack.Screen name="ViewReportedProblems" component ={ViewReportedProblems} />
           <Stack.Screen name="SubmitReport" component ={SubmitReport} />
           <Stack.Screen name="ViewProblemProgress" component ={ViewProblemProgress} />
-
+          <Stack.Screen name="ViewIssues" component ={ViewIssues} />
+           <Stack.Screen name="ViewProblemProgressForPanel" component ={ViewProblemProgressForPanel} />
+           <Stack.Screen name="ViewIssuesForPanel" component ={ViewIssuesForPanel} />
            {/* Project Screens */}
            <Stack.Screen name="ProjectDetails" component ={ProjectDetails} />
            <Stack.Screen name="ShowProjectLogs" component ={ShowProjectLogs} />
-
+           <Stack.Screen name="Project" component ={Project} />
+            <Stack.Screen name="ManageProjects" component ={ManageProjects} />
+<Stack.Screen name="AddProject" component ={AddProject} />
+<Stack.Screen name="ProjectLogs" component ={ProjectLogs} />
            {/* Meeting Screens */}
            <Stack.Screen name="Meeting" component ={Meeting} />
            <Stack.Screen name="ScheduleMeeting" component ={ScheduleMeeting} />
+
+           {/* Meeting Screens */}
+            <Stack.Screen name="ChairmanScreen" component ={ChairmanScreen} />
+            <Stack.Screen name="TreasurerScreen" component ={TreasurerScreen} />
+            <Stack.Screen name="SecrataryScreen" component ={SecrataryScreen} />
+            <Stack.Screen name="CommitteeMemberScreen" component ={CommitteeMemberScreen} />
+
+            <Stack.Screen name="Announcement" component ={Announcement} />
+            <Stack.Screen name="AddAnnouncement" component ={AddAnnouncement} />
+            <Stack.Screen name="ComplaintDiaryForPanel" component ={ComplaintDiaryForPanel} />
+            <Stack.Screen name="ComplaintDiaryForChairman" component ={ComplaintDiaryForChairman} />
+
+            <Stack.Screen name="ManageContributions" component ={ManageContributions} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

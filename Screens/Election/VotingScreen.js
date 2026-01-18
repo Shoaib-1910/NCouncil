@@ -289,8 +289,8 @@ export default function VotingScreen({ route, navigation }) {
             </View>
 
             {/* Modal Content */}
-            <View style={styles.modalContent}> 
-            <Text style={{color:'black', fontWeight:'600', fontSize: 23}}>To vote,</Text>   
+            <View style={styles.modalContent}>
+            <Text style={{color:'black', fontWeight:'600', fontSize: 23}}>To vote,</Text>
             <Text style={{color:'black', textAlign : 'left', fontSize: 22}}>
             Simply review the list of candidates. Select your preferred candidate by tapping the corresponding button, and then submit your vote.
             Ensure your selection is correct before finalizing your submission.
@@ -301,7 +301,7 @@ export default function VotingScreen({ route, navigation }) {
       </Modal>
       {isActive ? (
         <View style={{top : 150}}>
-          
+
         <FlatList
           data={candidates}
           keyExtractor={(item) => item.CandidateId.toString()}

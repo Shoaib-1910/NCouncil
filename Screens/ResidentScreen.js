@@ -113,6 +113,7 @@ export default function ResidentScreen ({ route, navigation }) {
     try {
       const response = await fetch(`${baseURL}election/getelectionforvotes?councilId=${Council}`);
       const data = await response.json();
+      console.log("data is",data)
       if (response.ok) {
         setIsElectionActive(data.Status === 'Active');
         console.log("Election Status: " + data.Status)
@@ -466,7 +467,7 @@ const leaveCouncil = async (councilId, memberId) => {
         </View>
       </Modal>
 
-      {isElectionActive ? (     
+      {isElectionActive ? (
         <TouchableOpacity 
           style={styles.button} 
           onPress={() => {navigation.navigate('VotingScreen', { councilId: Council })}}
@@ -475,8 +476,8 @@ const leaveCouncil = async (councilId, memberId) => {
           <Text style={styles.buttonText}>Vote Now!</Text>
         </TouchableOpacity>
       ) : (
-        <View 
-          style={styles.button2} 
+        <View
+          style={styles.button2}
           onPress={() => {}}
         >
           <Image source={require('../assets/votepng.png')} style={styles.buttonIcon} />

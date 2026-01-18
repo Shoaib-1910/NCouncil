@@ -32,43 +32,113 @@ export default function CouncilCard({ route, council, navigation, member, displa
   
 
   const checkUserType = async () => {
-    try {
-      const response = await fetch(`${baseURL}Council/GetUserType?memberId=${memberId}&councilId=${council.id}`);
-      const role = await response.json();
-      console.log(memberId)
-      if (response.ok) {
-        switch (role) {
-          case 'Admin':
-            navigation.navigate('AdminScreen', {role, Council : council.id});
-            break;
-          case 'Member':
-            navigation.navigate('ResidentScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
-            break;
-          case 'Councillor':
-            navigation.navigate('CommitteeMemberScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
-            break;
-          case 'Chairperson':
-            navigation.navigate('ChairmanScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
-          break;
-          case 'Treasurer':
-            navigation.navigate('TreasurerScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
-          break;
-          case 'Secratary':
-            navigation.navigate('SecrataryScreen' , {role, Council : council.id, councilName : council.Name, councilDescription: council.Description});
-          break;
-          
-          default:
-            Alert.alert('Error', 'Unknown role.');
-        }
-      } else { 
-        Alert.alert('Error', 'Failed to retrieve user type.');
-      }
-    } catch (error) {
-      console.error('Error checking user type:', error);
-      Alert.alert('Error', 'An error occurred while checking user type.');
-    } finally {
-      setIsLoading(false);
-    }
+ try {
+   const url = `${baseURL}Council/GetUserType?memberId=${memberId}&councilId=${council.id}`;
+   console.log("REQUEST URL:", url);
+
+   const response = await fetch(url);
+
+   console.log("HTTP STATUS:", response.status);
+   console.log("HTTP OK:", response.ok);
+   console.log("HEADERS:", Object.fromEntries(response.headers.entries()));
+
+   const rawText = await response.text();
+   console.log("RAW RESPONSE TEXT:", rawText);
+
+   let role;
+   try {
+     role = JSON.parse(rawText);
+   } catch (e) {
+     console.log("JSON PARSE FAILED. RESPONSE IS NOT JSON.");
+     throw new Error("Invalid JSON returned from server");
+   }
+
+   console.log("PARSED ROLE VALUE:", role);
+   console.log("MEMBER ID:", memberId);
+   console.log("COUNCIL ID:", council.id);
+
+   if (!response.ok) {
+     Alert.alert(
+       "API Error",
+       `Status: ${response.status}\nResponse: ${rawText}`
+     );
+     return;
+   }
+
+   if (!role) {
+     Alert.alert("API Error", "Role is null or empty");
+     return;
+   }
+
+   switch (role) {
+     case 'Admin':
+       navigation.navigate('AdminScreen', { role, Council: council.id });
+       break;
+
+     case 'Member':
+       navigation.navigate('ResidentScreen', {
+         role,
+         Council: council.id,
+         councilName: council.Name,
+         councilDescription: council.Description,
+       });
+       break;
+
+     case 'Councillor':
+       navigation.navigate('CommitteeMemberScreen', {
+         role,
+         Council: council.id,
+         councilName: council.Name,
+         councilDescription: council.Description,
+       });
+       break;
+
+     case 'Chairperson':
+       navigation.navigate('ChairmanScreen', {
+         role,
+         Council: council.id,
+         councilName: council.Name,
+         councilDescription: council.Description,
+       });
+       break;
+
+     case 'Treasurer':
+       navigation.navigate('TreasurerScreen', {
+         role,
+         Council: council.id,
+         councilName: council.Name,
+         councilDescription: council.Description,
+       });
+       break;
+
+     case 'Secratary':
+       navigation.navigate('SecrataryScreen', {
+         role,
+         Council: council.id,
+         councilName: council.Name,
+         councilDescription: council.Description,
+       });
+       break;
+
+     default:
+       Alert.alert(
+         'Unknown Role',
+         `Server returned unexpected role: ${role}`
+       );
+   }
+
+ } catch (error) {
+   console.log("FETCH CRASH ERROR:", error.message);
+   console.log("FULL ERROR OBJECT:", error);
+
+   Alert.alert(
+     'Network / Parse Error',
+     error.message
+   );
+ } finally {
+   setIsLoading(false);
+ }
+
   };
 
   // useEffect(() => {

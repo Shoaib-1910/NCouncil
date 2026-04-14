@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Text, Image, SafeAreaView, StyleSheet, TouchableOpacity, useWindowDimensions, View, Alert } from 'react-native';
 //import WavyBackground from '../Background/WavyBackground';
 import DividerLine from '../../Background/LineDivider';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WavyBackground2 from '../../Background/WavyBackground2';
 import baseURL  from '../Api';
@@ -23,6 +23,64 @@ export default function AdminScreen ({ route }) {
   const [address, setAddress] = useState(null);
   const [password, setPassword] = useState(null);
   const [dateJoined, setDateJoined] = useState(null);
+  const [announcementsData, setAnnouncementsData] = useState([]);
+  const [unreadAnnouncementCount, setUnreadAnnouncementCount] = useState(0);
+
+  const getAnnouncementReadStorageKey = () => {
+    const memberKey = memberId || 'guest';
+    return `readAnnouncements_${Council}_${memberKey}`;
+  };
+
+  const loadReadAnnouncementIds = async () => {
+    try {
+      const storedIds = await AsyncStorage.getItem(getAnnouncementReadStorageKey());
+      return storedIds ? JSON.parse(storedIds) : [];
+    } catch (error) {
+      console.log('Error loading read announcements: ' + error);
+      return [];
+    }
+  };
+
+  const markAnnouncementsAsRead = async (announcementIds) => {
+    try {
+      await AsyncStorage.setItem(
+        getAnnouncementReadStorageKey(),
+        JSON.stringify(announcementIds)
+      );
+      setUnreadAnnouncementCount(0);
+    } catch (error) {
+      console.log('Error saving read announcements: ' + error);
+    }
+  };
+
+  const getAnnouncementsForAdmin = async () => {
+    try {
+      const response = await fetch(
+        `${baseURL}Announcement/getAnnouncementsForCouncil?memberId=${memberId}&councilId=${Council}`
+      );
+      const data = await response.json();
+
+      if (response.ok && data && data.length > 0) {
+        const annData = data.map((ann) => ({
+          AnnouncementId: ann.AnnouncementId,
+          Title: ann.Title,
+        }));
+        const storedReadIds = await loadReadAnnouncementIds();
+        const unreadAnnouncements = annData.filter(
+          (announcement) => !storedReadIds.includes(announcement.AnnouncementId)
+        );
+
+        setAnnouncementsData(annData);
+        setUnreadAnnouncementCount(unreadAnnouncements.length);
+      } else {
+        setAnnouncementsData([]);
+        setUnreadAnnouncementCount(0);
+      }
+    } catch (error) {
+      console.log('Error Fetching Announcements ' + error);
+      setUnreadAnnouncementCount(0);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -122,11 +180,35 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
+    if (memberId && Council) {
+      getAnnouncementsForAdmin();
+    }
+  }, [memberId, Council]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (memberId && Council) {
+        getAnnouncementsForAdmin();
+      }
+    }, [memberId, Council])
+  );
+
+  useEffect(() => {
     if (councilData) {
       console.log('Council Data updated:', councilData);
       console.log('Council Members:', membersCount);
     }
   }, [councilData]);
+
+  const handleAnnouncementPress = async () => {
+    const allAnnouncementIds = announcementsData.map((announcement) => announcement.AnnouncementId);
+    await markAnnouncementsAsRead(allAnnouncementIds);
+    navigation.navigate('Announcement', {
+      councilId: Council,
+      fromScreen: route.name,
+      fromParams: route.params,
+    });
+  };
 
 return (
   <SafeAreaView style={styles.container}>
@@ -142,9 +224,16 @@ return (
       </View>
       </TouchableOpacity>
       {/* Announcement Icon */}
-      <TouchableOpacity onPress={() => navigation.navigate('Announcement', {councilId: Council})}>
-        <View style={styles.iconContainer}>
+      <TouchableOpacity onPress={handleAnnouncementPress}>
+        <View style={[styles.iconContainer, styles.iconWrapper]}>
           <Image source={require('../../assets/announcement.png')} style={styles.icon} />
+          {unreadAnnouncementCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {unreadAnnouncementCount > 99 ? '99+' : unreadAnnouncementCount}
+              </Text>
+            </View>
+          )}
           <Text style={styles.iconLabel}>Announce</Text>
         </View>
       </TouchableOpacity>
@@ -210,6 +299,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  iconWrapper: {
+    position: 'relative',
+  },
   icon: {
     height: 60,
     width: 60,
@@ -223,6 +315,26 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     width: 80, 
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: 6,
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 5,
+    backgroundColor: 'red',
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   desc: {
     fontSize: 16,

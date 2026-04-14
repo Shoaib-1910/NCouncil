@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import WavyBackground from '../../Background/WavyBackground';
+import { ActivityIndicator, Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import WavyBackground2 from '../../Background/WavyBackground2';
-import { Button } from 'react-native-paper';
 import baseURL from '../Api';
 
+const ANNOUNCEMENT_CATEGORIES = [
+  'General',
+  'Public Notice',
+  'Election',
+  'Meeting',
+  'Development',
+  'Emergency',
+  'Community Event',
+];
+
 export default function AddAnnouncement({ route, navigation }) {
-  const { width } = useWindowDimensions(); // screen width
+  const { width } = useWindowDimensions();
   const { councilId, memberID } = route.params;
-  const [title, setTitle]= useState('');
-  const [desc,  setDesc] = useState('');
-  const [loading, setLoading] = useState(false)
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [category, setCategory] = useState('General');
+  const [loading, setLoading] = useState(false);
 
   async function CreateCouncil() {
     if (!title || !desc) {
@@ -21,33 +30,34 @@ export default function AddAnnouncement({ route, navigation }) {
     const post = {
         title: title,
         Description: desc,
+        cat: category,
     };
-    setLoading(true)
+    setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-        const response = await fetch(`${baseURL}announcement/PostAnnouncement?memberId=${memberID}&councilId=${councilId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(post), 
-        });
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch(`${baseURL}announcement/PostAnnouncement?memberId=${memberID}&councilId=${councilId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(post),
+      });
 
-        const json = await response.json();
-          
-        if (response.ok) {
-            console.log(JSON.stringify(json));
-            Alert.alert('Announcement added successfully!', '', 
-              [{ text: 'OK', onPress: () => navigation.navigate('Announcement', { memberID: memberID, councilId: councilId })}]);
-        } else {
-            Alert.alert('Failed to create post.'+response.status);
-            console.log('Failed to create post.'+response.status)
-        }
+      const json = await response.json();
+        
+      if (response.ok) {
+        console.log(JSON.stringify(json));
+        Alert.alert('Announcement added successfully!', '', 
+          [{ text: 'OK', onPress: () => navigation.navigate('Announcement', { memberID: memberID, councilId: councilId })}]);
+      } else {
+        Alert.alert('Failed to create post.'+response.status);
+        console.log('Failed to create post.'+response.status);
+      }
     } catch (error) {
-        Alert.alert('An error occurred while creating the post.');
+      Alert.alert('An error occurred while creating the post.');
     }
-    setLoading(false)
-}
+    setLoading(false);
+  }
 
 
   return (
@@ -62,6 +72,26 @@ export default function AddAnnouncement({ route, navigation }) {
           </View>
         </View>
         <TextInput style={styles.input} placeholder="Title " keyboardType="default" onChangeText={setTitle} placeholderTextColor="#000" />
+        <View style={styles.categorySection}>
+          <Text style={styles.categoryLabel}>Category</Text>
+          <View style={styles.categoryOptions}>
+            {ANNOUNCEMENT_CATEGORIES.map((item) => {
+              const isSelected = category === item;
+
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.categoryChip, isSelected && styles.categoryChipActive]}
+                  onPress={() => setCategory(item)}
+                >
+                  <Text style={[styles.categoryChipText, isSelected && styles.categoryChipTextActive]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
         <TextInput style={styles.description} placeholder="Description" multiline={true}
         numberOfLines={5} 
         selectionColor={'#f5d8a0'}
@@ -94,6 +124,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 30,
   },
   logoContainer: {
     marginBottom: 30,
@@ -130,6 +161,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
     marginBottom: 10,
     color: 'black',
+  },
+  categorySection: {
+    width: '85%',
+    marginBottom: 10,
+  },
+  categoryLabel: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+  categoryOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  categoryChip: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  categoryChipActive: {
+    backgroundColor: '#F0C38E',
+    borderColor: '#F0C38E',
+  },
+  categoryChipText: {
+    color: '#444',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  categoryChipTextActive: {
+    color: '#000',
   },
   description: {
     width: '85%',

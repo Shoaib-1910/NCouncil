@@ -42,6 +42,7 @@ import SecrataryScreen from './SecrataryScreen';
 import CommitteeMemberScreen from './CommitteeMemberScreen';
 import Announcement from './Announcement/Announcement';
 import AddAnnouncement from './Announcement/AddAnnouncement';
+import AnnouncementDetail from './Announcement/AnnouncementDetail';
 import ComplaintDiaryForPanel from './ReportProblem/ComplaintDiaryForPanel';
 import ComplaintDiaryForChairman from './ReportProblem/ComplaintDiaryForChairman';
 import ManageContributions from './Contributions/Contribution';
@@ -129,6 +130,7 @@ export default function Main() {
 
             <Stack.Screen name="Announcement" component ={Announcement} />
             <Stack.Screen name="AddAnnouncement" component ={AddAnnouncement} />
+            <Stack.Screen name="AnnouncementDetail" component ={AnnouncementDetail} />
             <Stack.Screen name="ComplaintDiaryForPanel" component ={ComplaintDiaryForPanel} />
             <Stack.Screen name="ComplaintDiaryForChairman" component ={ComplaintDiaryForChairman} />
 

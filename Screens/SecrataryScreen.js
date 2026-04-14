@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import WavyBackground from '../Background/WavyBackground';
 const screenWidth = Dimensions.get('window').width;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import baseURL from './Api'
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function SecretaryScreen ({ route, navigation }) {
   const { width } = useWindowDimensions(); // screen width
@@ -19,7 +20,12 @@ export default function SecretaryScreen ({ route, navigation }) {
   const [address, setAddress] = useState(null);
   const [password, setPassword] = useState(null);
   const [dateJoined, setDateJoined] = useState(null);
-  const [AnnouncementsData, setAnnouncementsData] = useState([])
+  const [AnnouncementsData, setAnnouncementsData] = useState([]);
+  const [announcementFound, setAnnouncementFound] = useState(false);
+  const [unreadAnnouncementCount, setUnreadAnnouncementCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notificationFound, setNotificationFound] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
  
   const openMenu = () => setMenuVisible(true);
@@ -71,7 +77,32 @@ export default function SecretaryScreen ({ route, navigation }) {
     }
   };
 
-  const [announcementFound, setAnnouncementFound] = useState(false);
+  const getAnnouncementReadStorageKey = () => {
+    const memberKey = memberId || 'guest';
+    return `readAnnouncements_${Council}_${memberKey}`;
+  };
+
+  const loadReadAnnouncementIds = async () => {
+    try {
+      const storedIds = await AsyncStorage.getItem(getAnnouncementReadStorageKey());
+      return storedIds ? JSON.parse(storedIds) : [];
+    } catch (error) {
+      console.log('Error loading read announcements: ' + error);
+      return [];
+    }
+  };
+
+  const markAnnouncementsAsRead = async (announcementIds) => {
+    try {
+      await AsyncStorage.setItem(
+        getAnnouncementReadStorageKey(),
+        JSON.stringify(announcementIds)
+      );
+      setUnreadAnnouncementCount(0);
+    } catch (error) {
+      console.log('Error saving read announcements: ' + error);
+    }
+  };
 
   const getAnnouncementsForResidents = async() =>{
     try{
@@ -89,14 +120,21 @@ export default function SecretaryScreen ({ route, navigation }) {
             MemberName : ann.AddedBy,
             RoleId : ann.RoleName
           }));
+          const storedReadIds = await loadReadAnnouncementIds();
+          const unreadAnnouncements = annData.filter(
+            (announcement) => !storedReadIds.includes(announcement.AnnouncementId)
+          );
           setAnnouncementFound(data.length > 0);
-        setAnnouncementsData(annData)
-        console.log(AnnouncementsData)
+          setUnreadAnnouncementCount(unreadAnnouncements.length);
+          setAnnouncementsData(annData)
+          console.log(AnnouncementsData)
       }else{
         console.log("No Announcements Found")
+        setUnreadAnnouncementCount(0);
       }
     }else{
       console.log('No Announcementsss Found')
+      setUnreadAnnouncementCount(0);
     }
   }
     catch(error){
@@ -108,6 +146,14 @@ export default function SecretaryScreen ({ route, navigation }) {
     getAnnouncementsForResidents()
   }, [memberId, Council]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (memberId && Council) {
+        getAnnouncementsForResidents();
+      }
+    }, [memberId, Council])
+  );
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.title}>{item.Title}</Text>
@@ -116,10 +162,6 @@ export default function SecretaryScreen ({ route, navigation }) {
      
     </View>
   );
-
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const[notificationFound, setNotificationFound] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -154,6 +196,16 @@ export default function SecretaryScreen ({ route, navigation }) {
     navigation.navigate('ViewReportedProblems', { councilId: Council })
     closeMenu5()
   }
+
+  const handleAnnouncementPress = async () => {
+    const allAnnouncementIds = AnnouncementsData.map((announcement) => announcement.AnnouncementId);
+    await markAnnouncementsAsRead(allAnnouncementIds);
+    navigation.navigate('Announcement', {
+      councilId: Council,
+      fromScreen: route.name,
+      fromParams: route.params,
+    });
+  }
   
   const RenderNotification =  React.memo(({ item }) =>{
     return(
@@ -185,15 +237,19 @@ export default function SecretaryScreen ({ route, navigation }) {
 
       {/* Icons */}
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Announcement', {councilId: Council})}> 
+        <TouchableOpacity onPress={handleAnnouncementPress} style={styles.iconWrapper}> 
         <Image
           source={
          require('../assets/notification.png')
         }
         style={styles.icon}
         />
-      {announcementFound && (
-        <View style={styles.badge} />
+      {unreadAnnouncementCount > 0 && (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>
+            {unreadAnnouncementCount > 99 ? '99+' : unreadAnnouncementCount}
+          </Text>
+        </View>
       )}
         </TouchableOpacity>
 
@@ -542,16 +598,27 @@ menuContainer: {
     color: "#aaa",
     marginTop: 20,
   },
+  iconWrapper: {
+    position: 'relative',
+  },
   badge: {
     position: 'absolute',
-    top: -2, // Adjust as needed for the badge's position
-    right: -2, // Adjust as needed for the badge's position
-    width: 14, // Badge size
-    height: 14,
-    backgroundColor: 'red', // Badge color
-    borderRadius: 10, // Make it circular (half of width/height)
-    borderWidth: 1, // Optional: border for better visibility
-    borderColor: '#fff', // Matches the background (for example, white)
+    top: -6,
+    right: -8,
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 5,
+    backgroundColor: 'red',
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
 footer: {
   position: 'absolute',

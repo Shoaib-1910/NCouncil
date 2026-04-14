@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import WavyBackground from '../Background/WavyBackground';
 const screenWidth = Dimensions.get('window').width;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import baseURL from './Api'
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function CouncilorScreen ({ route, navigation }) {
   const { width } = useWindowDimensions(); // screen width
@@ -19,7 +20,9 @@ export default function CouncilorScreen ({ route, navigation }) {
   const [address, setAddress] = useState(null);
   const [password, setPassword] = useState(null);
   const [dateJoined, setDateJoined] = useState(null);
-  const [AnnouncementsData, setAnnouncementsData] = useState([])
+  const [AnnouncementsData, setAnnouncementsData] = useState([]);
+  const [announcementFound, setAnnouncementFound] = useState(false);
+  const [unreadAnnouncementCount, setUnreadAnnouncementCount] = useState(0);
   const [menuVisible, setMenuVisible] = useState(false);
  
   const openMenu = () => setMenuVisible(true);
@@ -59,6 +62,33 @@ export default function CouncilorScreen ({ route, navigation }) {
     }
   };
 
+  const getAnnouncementReadStorageKey = () => {
+    const memberKey = memberId || 'guest';
+    return `readAnnouncements_${Council}_${memberKey}`;
+  };
+
+  const loadReadAnnouncementIds = async () => {
+    try {
+      const storedIds = await AsyncStorage.getItem(getAnnouncementReadStorageKey());
+      return storedIds ? JSON.parse(storedIds) : [];
+    } catch (error) {
+      console.log('Error loading read announcements: ' + error);
+      return [];
+    }
+  };
+
+  const markAnnouncementsAsRead = async (announcementIds) => {
+    try {
+      await AsyncStorage.setItem(
+        getAnnouncementReadStorageKey(),
+        JSON.stringify(announcementIds)
+      );
+      setUnreadAnnouncementCount(0);
+    } catch (error) {
+      console.log('Error saving read announcements: ' + error);
+    }
+  };
+
   const getAnnouncementsForResidents = async() =>{
     try{
       const response = await fetch(`${baseURL}Announcement/getAnnouncementsForCouncil?memberId=${memberId}&councilId=${Council}`)
@@ -75,13 +105,21 @@ export default function CouncilorScreen ({ route, navigation }) {
             MemberName : ann.AddedBy,
             RoleId : ann.RoleName
           }));
-        setAnnouncementsData(annData)
-        console.log(AnnouncementsData)
+          const storedReadIds = await loadReadAnnouncementIds();
+          const unreadAnnouncements = annData.filter(
+            (announcement) => !storedReadIds.includes(announcement.AnnouncementId)
+          );
+          setAnnouncementFound(data.length > 0);
+          setUnreadAnnouncementCount(unreadAnnouncements.length);
+          setAnnouncementsData(annData)
+          console.log(AnnouncementsData)
       }else{
         console.log("No Announcements Found")
+        setUnreadAnnouncementCount(0);
       }
     }else{
       console.log('No Announcementsss Found')
+      setUnreadAnnouncementCount(0);
     }
   }
     catch(error){
@@ -93,6 +131,14 @@ export default function CouncilorScreen ({ route, navigation }) {
     getAnnouncementsForResidents()
   }, [memberId, Council]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (memberId && Council) {
+        getAnnouncementsForResidents();
+      }
+    }, [memberId, Council])
+  );
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.title}>{item.Title}</Text>
@@ -101,6 +147,16 @@ export default function CouncilorScreen ({ route, navigation }) {
      
     </View>
   );
+
+  const handleAnnouncementPress = async () => {
+    const allAnnouncementIds = AnnouncementsData.map((announcement) => announcement.AnnouncementId);
+    await markAnnouncementsAsRead(allAnnouncementIds);
+    navigation.navigate('Announcement', {
+      councilId: Council,
+      fromScreen: route.name,
+      fromParams: route.params,
+    });
+  }
   
   return (
     <SafeAreaView style={styles.container}>
@@ -113,8 +169,15 @@ export default function CouncilorScreen ({ route, navigation }) {
 
       {/* Icons */}
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Announcement', {councilId: Council})}> 
+        <TouchableOpacity onPress={handleAnnouncementPress} style={styles.iconWrapper}> 
           <Image source={require('../assets/notification.png')} style={styles.icon} />
+          {unreadAnnouncementCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {unreadAnnouncementCount > 99 ? '99+' : unreadAnnouncementCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         {/* Menu Modal For Announcement*/}
@@ -247,11 +310,14 @@ iconContainer: {
   marginTop: 30,
   width: screenWidth * 0.8,
 },
-icon: {
+  icon: {
   width: 50,
   height: 50,
   borderRadius: 75,
   backgroundColor: '#fff',
+},
+iconWrapper: {
+  position: 'relative',
 },
 buttonsContainer: {
   flex: 1,
@@ -340,6 +406,25 @@ modalOverlay: {
   metaData: {
     fontSize: 12,
     color: '#888',
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -8,
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 5,
+    backgroundColor: 'red',
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   date: {
     fontSize: 12,

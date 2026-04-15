@@ -265,6 +265,20 @@ return (
   <TouchableOpacity style={styles.signInButton} onPress={() => {navigation.navigate('ViewIssues', {role , councilId : Council, memberId : memberId})}}>
     <Text style={styles.signInButtonText}>Complaints</Text>
   </TouchableOpacity>
+  <TouchableOpacity
+    style={styles.signInButton}
+    onPress={() =>
+      navigation.navigate('Poll', {
+        councilId: Council,
+        memberId: memberId,
+        role,
+        fromScreen: route.name,
+        fromParams: route.params,
+      })
+    }
+  >
+    <Text style={styles.signInButtonText}>Community Poll</Text>
+  </TouchableOpacity>
 
 
 </SafeAreaView>

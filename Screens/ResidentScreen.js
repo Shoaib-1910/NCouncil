@@ -544,6 +544,22 @@ const leaveCouncil = async (councilId, memberId) => {
         <Text style={styles.buttonText}>Projects</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate('Poll', {
+            councilId: Council,
+            memberId: memberId,
+            fromScreen: route.name,
+            fromParams: route.params,
+            role: role,
+          })
+        }
+      >
+        <Image source={require('../assets/announcement2.png')} style={styles.buttonIcon} />
+        <Text style={styles.buttonText}>Community Poll</Text>
+      </TouchableOpacity>
+
 
      {/* Menu Modal for Nominations*/}
     <TouchableOpacity

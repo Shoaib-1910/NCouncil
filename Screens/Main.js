@@ -43,6 +43,8 @@ import CommitteeMemberScreen from './CommitteeMemberScreen';
 import Announcement from './Announcement/Announcement';
 import AddAnnouncement from './Announcement/AddAnnouncement';
 import AnnouncementDetail from './Announcement/AnnouncementDetail';
+import Poll from './Poll/poll';
+import AddPoll from './Poll/AddPoll';
 import ComplaintDiaryForPanel from './ReportProblem/ComplaintDiaryForPanel';
 import ComplaintDiaryForChairman from './ReportProblem/ComplaintDiaryForChairman';
 import ManageContributions from './Contributions/Contribution';
@@ -131,6 +133,8 @@ export default function Main() {
             <Stack.Screen name="Announcement" component ={Announcement} />
             <Stack.Screen name="AddAnnouncement" component ={AddAnnouncement} />
             <Stack.Screen name="AnnouncementDetail" component ={AnnouncementDetail} />
+            <Stack.Screen name="Poll" component ={Poll} />
+            <Stack.Screen name="AddPoll" component ={AddPoll} />
             <Stack.Screen name="ComplaintDiaryForPanel" component ={ComplaintDiaryForPanel} />
             <Stack.Screen name="ComplaintDiaryForChairman" component ={ComplaintDiaryForChairman} />
 

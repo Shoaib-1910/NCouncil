@@ -426,6 +426,21 @@ export default function ChairmanScreen ({ route, navigation }) {
         <Image source={require('../assets/ViewIssues.png')} style={styles.buttonIcon} />
         <Text style={styles.buttonText}>View Problems</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate('Poll', {
+            councilId: Council,
+            memberId: memberId,
+            fromScreen: route.name,
+            fromParams: route.params,
+            role: role,
+          })
+        }
+      >
+        <Image source={require('../assets/announcement2.png')} style={styles.buttonIcon} />
+        <Text style={styles.buttonText}>Community Poll</Text>
+      </TouchableOpacity>
     </View>
     <Image
           source={require('../assets/Footer.png')}

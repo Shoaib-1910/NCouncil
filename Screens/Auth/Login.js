@@ -104,6 +104,8 @@ export default function Login() {
       const json = await response.json();
 
       if (response.ok && json.data) {
+        console.log('Login API response data:', json.data);
+
         const userData = {
           memberId: json.data.id,
           phoneNo: json.data.PhoneNo,
@@ -114,8 +116,11 @@ export default function Login() {
           city: json.data.City,
           address: json.data.Address,
           password: json.data.Password,
-          dateJoined: json.data.Date_joined
+          dateJoined: json.data.Date_joined,
+          roleId: json.data.RoleId ?? json.data.roleId ?? null
         };
+
+        console.log('User data being stored:', userData);
 
         await storeUserData(userData);
         await AsyncStorage.setItem('userToken', 'LoggedIn');

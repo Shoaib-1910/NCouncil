@@ -117,6 +117,9 @@ export default function Project({navigation, route }) {
         <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ProjectDetails' , {councilID: councilId, memberID: memberId})}}>
             <Text style={styles.signInButtonText}>Project Details</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ApprovalRequest' , {councilId: councilId, memberID: memberId})}}>
+            <Text style={styles.signInButtonText}>Expense Requests</Text>
+        </TouchableOpacity>
         {/* <TouchableOpacity style={styles.signInButton} onPress={()=>{navigation.navigate('ProjectLogs' , {councilID: councilId})}}>
             <Text style={styles.signInButtonText}>Project Logs</Text>
         </TouchableOpacity> */}

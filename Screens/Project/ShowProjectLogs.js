@@ -153,8 +153,9 @@
 //     alignItems: 'center',
 //   },
 // });
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -167,6 +168,7 @@ import {
 } from 'react-native';
 import WavyBackground from '../../Background/WavyBackground';
 import Collapsible from 'react-native-collapsible';
+import { generatePDF } from 'react-native-html-to-pdf';
 import baseURL from '../Api';
 
 export default function ShowProjectLogs({ navigation, route }) {
@@ -176,9 +178,10 @@ export default function ShowProjectLogs({ navigation, route }) {
   const [logs, setLogs] = useState([]);
   const [collapsed, setCollapsed] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   // Fetch project data with logs
-  const fetchProjectWithLogs = async () => {
+  const fetchProjectWithLogs = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${baseURL}Project/GetProjectWithLogs?projectId=${projectId}`);
@@ -195,11 +198,122 @@ export default function ShowProjectLogs({ navigation, route }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
     fetchProjectWithLogs();
-  }, []);
+  }, [fetchProjectWithLogs]);
+
+  const escapeHtml = (value) => {
+    const text = value === null || value === undefined ? '' : String(value);
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  const formatDate = (dateValue) => {
+    if (!dateValue) {
+      return 'N/A';
+    }
+
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) {
+      return 'N/A';
+    }
+
+    return date.toDateString();
+  };
+
+  const handlePrintProjectPdf = async () => {
+    if (!project) {
+      Alert.alert('Error', 'Project details are not loaded yet.');
+      return;
+    }
+
+    setExportingPdf(true);
+    try {
+      const logRows = (logs || [])
+        .map(
+          (log, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${escapeHtml(formatDate(log.action_date))}</td>
+              <td>${escapeHtml(log.status || 'N/A')}</td>
+              <td>${escapeHtml(log.comments || 'N/A')}</td>
+              <td>Rs ${Number(log.amount_spent || 0).toFixed(2)}</td>
+            </tr>
+          `
+        )
+        .join('');
+
+      const html = `
+        <html>
+          <head>
+            <meta charset="utf-8" />
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
+              h1 { margin-bottom: 14px; color: #2c2c2c; }
+              h2 { margin-top: 24px; color: #2c2c2c; }
+              .meta { margin-bottom: 8px; font-size: 14px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+              th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
+              th { background-color: #f3e3c6; font-weight: 700; }
+            </style>
+          </head>
+          <body>
+            <h1>Project Details</h1>
+            <div class="meta"><strong>Title:</strong> ${escapeHtml(project.title || 'N/A')}</div>
+            <div class="meta"><strong>Status:</strong> ${escapeHtml(project.status || 'N/A')}</div>
+            <div class="meta"><strong>Description:</strong> ${escapeHtml(project.description || 'N/A')}</div>
+            <div class="meta"><strong>Priority:</strong> ${escapeHtml(project.Priority || 'N/A')}</div>
+            <div class="meta"><strong>Budget:</strong> Rs ${Number(project.budget || 0).toFixed(2)}</div>
+
+            <h2>Project Logs</h2>
+            ${
+              logs.length > 0
+                ? `
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Comments</th>
+                        <th>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${logRows}
+                    </tbody>
+                  </table>
+                `
+                : '<div class="meta">No logs available for this project.</div>'
+            }
+          </body>
+        </html>
+      `;
+
+      const fileName = `project_logs_${projectId}_${Date.now()}`;
+      const pdfFile = await generatePDF({
+        html,
+        fileName,
+        directory: 'Documents',
+      });
+
+      Alert.alert(
+        'PDF Generated',
+        `Project PDF saved successfully.\n\nPath: ${pdfFile.filePath}`
+      );
+    } catch (error) {
+      console.log('Error generating project PDF:', error);
+      Alert.alert('Error', 'Unable to generate project PDF right now.');
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -232,6 +346,17 @@ export default function ShowProjectLogs({ navigation, route }) {
           <Text style={styles.projectDetail}>Priority: {project.Priority}</Text>
           <Text style={styles.projectDetail}>Budget: Rs {project.budget.toFixed(2)}</Text>
           <Text style={styles.projectDetail}>Description: {project.description}</Text>
+          <TouchableOpacity
+            style={[styles.printButton, exportingPdf && styles.printButtonDisabled]}
+            onPress={handlePrintProjectPdf}
+            disabled={exportingPdf}
+          >
+            {exportingPdf ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <Text style={styles.printButtonText}>Print / Save PDF</Text>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Logs Section */}
@@ -333,6 +458,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginBottom: 4,
+  },
+  printButton: {
+    marginTop: 14,
+    alignSelf: 'flex-start',
+    backgroundColor: '#F0C38E',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  printButtonDisabled: {
+    opacity: 0.7,
+  },
+  printButtonText: {
+    color: '#000',
+    fontWeight: '700',
   },
   logsContainer: {
     backgroundColor: '#555',

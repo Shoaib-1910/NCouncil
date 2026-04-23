@@ -4,7 +4,6 @@ import {
   Alert,
   BackHandler,
   Image,
-  Linking,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -303,20 +302,6 @@ export default function Poll({ navigation, route }) {
         fileName: safeFileName,
         directory: 'Documents',
       });
-
-      const fileUrl = file.filePath?.startsWith('file://')
-        ? file.filePath
-        : `file://${file.filePath}`;
-
-      if (fileUrl) {
-        try {
-          await Linking.openURL(fileUrl);
-          Alert.alert('PDF Downloaded', 'Poll result PDF saved and opened successfully.');
-          return;
-        } catch (openError) {
-          console.log('Error opening generated PDF:', openError);
-        }
-      }
 
       Alert.alert(
         'PDF Downloaded',

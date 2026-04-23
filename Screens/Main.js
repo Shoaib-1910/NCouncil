@@ -36,6 +36,8 @@ import Project from './Project/Project';
 import ManageProjects from './Project/ManageProjects';
 import AddProject from './Project/AddProject';
 import ProjectLogs from './Project/ProjectLogs';
+import ApprovalRequest from './Project/ApprovalRequest';
+import AddExpenseRequest from './Project/AddExpenseRequest';
 import Meeting from './Meeting/Meeting';
 import ScheduleMeeting from './Meeting/ScheduleMeeting';
 import SecrataryScreen from './SecrataryScreen';
@@ -120,6 +122,8 @@ export default function Main() {
             <Stack.Screen name="ManageProjects" component ={ManageProjects} />
 <Stack.Screen name="AddProject" component ={AddProject} />
 <Stack.Screen name="ProjectLogs" component ={ProjectLogs} />
+<Stack.Screen name="ApprovalRequest" component ={ApprovalRequest} />
+<Stack.Screen name="AddExpenseRequest" component ={AddExpenseRequest} />
            {/* Meeting Screens */}
            <Stack.Screen name="Meeting" component ={Meeting} />
            <Stack.Screen name="ScheduleMeeting" component ={ScheduleMeeting} />

@@ -47,6 +47,13 @@ import AddAnnouncement from './Announcement/AddAnnouncement';
 import AnnouncementDetail from './Announcement/AnnouncementDetail';
 import Poll from './Poll/poll';
 import AddPoll from './Poll/AddPoll';
+import EventCalendar from './Event/Calendar';
+import AddEvent from './Event/AddEvent';
+import ApproveEvent from './Event/ApproveEvent';
+import AddVolunter from './Event/AddVolunter';
+import MarkAttendance from './Event/MarkAttendance';
+import ViewAttendance from './Event/ViewAttendance';
+import Templates from './Templates/Templates';
 import ComplaintDiaryForPanel from './ReportProblem/ComplaintDiaryForPanel';
 import ComplaintDiaryForChairman from './ReportProblem/ComplaintDiaryForChairman';
 import ManageContributions from './Contributions/Contribution';
@@ -139,6 +146,13 @@ export default function Main() {
             <Stack.Screen name="AnnouncementDetail" component ={AnnouncementDetail} />
             <Stack.Screen name="Poll" component ={Poll} />
             <Stack.Screen name="AddPoll" component ={AddPoll} />
+            <Stack.Screen name="EventCalendar" component ={EventCalendar} />
+            <Stack.Screen name="AddEvent" component ={AddEvent} />
+            <Stack.Screen name="ApproveEvent" component ={ApproveEvent} />
+            <Stack.Screen name="AddVolunter" component ={AddVolunter} />
+            <Stack.Screen name="MarkAttendance" component ={MarkAttendance} />
+            <Stack.Screen name="ViewAttendance" component ={ViewAttendance} />
+            <Stack.Screen name="Templates" component ={Templates} />
             <Stack.Screen name="ComplaintDiaryForPanel" component ={ComplaintDiaryForPanel} />
             <Stack.Screen name="ComplaintDiaryForChairman" component ={ComplaintDiaryForChairman} />
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Dimensions, FlatList, Image, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Dimensions, FlatList, Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import WavyBackground from '../Background/WavyBackground';
 const screenWidth = Dimensions.get('window').width;
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -256,7 +256,7 @@ export default function CouncilorScreen ({ route, navigation }) {
     </View>
 
     {/* Buttons */}
-    <View style={styles.buttonsContainer}>
+    <ScrollView style={styles.buttonsContainer} scrollEnabled={true} showsVerticalScrollIndicator={false}>
       <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate('ReportProblem', {councilId : Council, memberId : memberId})}}>
         <Image source={require('../assets/ReportProblem.png')} style={styles.buttonIcon} />
         <Text style={styles.buttonText}>Report Issue</Text>
@@ -288,7 +288,14 @@ export default function CouncilorScreen ({ route, navigation }) {
         <Image source={require('../assets/announcement2.png')} style={styles.buttonIcon} />
         <Text style={styles.buttonText}>Community Poll</Text>
       </TouchableOpacity>
-    </View>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('EventCalendar', { councilId: Council, memberId: memberId, role: route.params?.role })}
+      >
+        <Image source={require('../assets/group.png')} style={styles.buttonIcon} />
+        <Text style={styles.buttonText}>Event</Text>
+      </TouchableOpacity>
+    </ScrollView>
     <Image
           source={require('../assets/Footer.png')}
           style={[styles.footer, { width: width }]}
